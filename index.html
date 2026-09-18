@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FreshCart - Vegetable POS</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="header">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                🥬
+            </div>
+
+            <div>
+                <h1>FreshCart</h1>
+                <p>Vegetable Shop POS</p>
+            </div>
+
+        </div>
+
+
+        <div class="header-right">
+
+            <div class="today-info">
+                <span>Today</span>
+                <strong id="currentDate"></strong>
+            </div>
+
+            <button
+                class="admin-btn"
+                onclick="openAdminModal()"
+            >
+                ⚙️ Manage Products
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <main class="main-container">
+
+
+        <!-- PRODUCT SECTION -->
+
+        <section class="products-section">
+
+            <div class="section-top">
+
+                <div>
+                    <h2>Today's Vegetables</h2>
+
+                    <p>
+                        Select vegetables to add them to the bill
+                    </p>
+                </div>
+
+
+                <div class="search-wrapper">
+
+                    <span>🔍</span>
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Search vegetables..."
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- CATEGORY -->
+
+            <div class="categories">
+
+                <button
+                    class="category-btn active"
+                    data-category="all"
+                >
+                    All
+                </button>
+
+                <button
+                    class="category-btn"
+                    data-category="vegetable"
+                >
+                    Vegetables
+                </button>
+
+                <button
+                    class="category-btn"
+                    data-category="leafy"
+                >
+                    Leafy
+                </button>
+
+                <button
+                    class="category-btn"
+                    data-category="root"
+                >
+                    Root
+                </button>
+
+                <button
+                    class="category-btn"
+                    data-category="fruit"
+                >
+                    Fruits
+                </button>
+
+            </div>
+
+
+            <!-- PRODUCTS -->
+
+            <div
+                class="product-grid"
+                id="productGrid"
+            ></div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             BILL / CART
+        ================================================== -->
+
+        <aside class="bill-panel">
+
+            <div class="bill-header">
+
+                <div>
+
+                    <h2>Current Bill</h2>
+
+                    <span id="cartCount">
+                        0 items
+                    </span>
+
+                </div>
+
+
+                <button
+                    class="clear-btn"
+                    onclick="clearCart()"
+                >
+                    Clear
+                </button>
+
+            </div>
+
+
+            <!-- CART -->
+
+            <div
+                class="cart-items"
+                id="cartItems"
+            >
+
+                <div class="empty-cart">
+
+                    <div class="empty-cart-icon">
+                        🛒
+                    </div>
+
+                    <h3>
+                        No items added
+                    </h3>
+
+                    <p>
+                        Add vegetables from the product list
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- BILL SUMMARY -->
+
+            <div class="bill-summary">
+
+                <div class="summary-line">
+
+                    <span>
+                        Items
+                    </span>
+
+                    <strong id="totalItems">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-line">
+
+                    <span>
+                        Subtotal
+                    </span>
+
+                    <strong id="subtotal">
+                        ₹0.00
+                    </strong>
+
+                </div>
+
+
+                <div class="grand-total">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong id="grandTotal">
+                        ₹0.00
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- PAYMENT -->
+
+            <div class="payment-section">
+
+                <h3>
+                    Payment Method
+                </h3>
+
+
+                <div class="payment-buttons">
+
+                    <button
+                        class="payment-btn active"
+                        data-payment="Cash"
+                        onclick="selectPayment(this)"
+                    >
+
+                        <span class="payment-icon">
+                            💵
+                        </span>
+
+                        Cash
+
+                    </button>
+
+
+                    <button
+                        class="payment-btn"
+                        data-payment="GPay"
+                        onclick="selectPayment(this)"
+                    >
+
+                        <span class="payment-icon">
+                            📱
+                        </span>
+
+                        GPay
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- PRINT -->
+
+            <button
+                class="print-btn"
+                onclick="printBill()"
+            >
+
+                🖨️ Print Bill
+
+            </button>
+
+
+        </aside>
+
+    </main>
+
+
+    <!-- =====================================================
+         ADMIN PRODUCT MODAL
+    ====================================================== -->
+
+    <div
+        class="modal-overlay"
+        id="adminModal"
+    >
+
+        <div class="modal">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h2>
+                        Manage Products
+                    </h2>
+
+                    <p>
+                        Add, edit or remove vegetables
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="modal-close"
+                    onclick="closeAdminModal()"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <!-- ADD PRODUCT -->
+
+            <div class="admin-add-section">
+
+                <h3>
+                    Add New Product
+                </h3>
+
+
+                <form
+                    id="productForm"
+                    class="product-form"
+                >
+
+                    <div class="form-group">
+
+                        <label>
+                            Product Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="productName"
+                            placeholder="Example: Tomato"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Price per KG
+                        </label>
+
+                        <input
+                            type="number"
+                            id="productPrice"
+                            placeholder="Example: 40"
+                            min="0"
+                            step="0.01"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Category
+                        </label>
+
+                        <select id="productCategory">
+
+                            <option value="vegetable">
+                                Vegetable
+                            </option>
+
+                            <option value="leafy">
+                                Leafy
+                            </option>
+
+                            <option value="root">
+                                Root
+                            </option>
+
+                            <option value="fruit">
+                                Fruit
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Image URL
+                        </label>
+
+                        <input
+                            type="url"
+                            id="productImage"
+                            placeholder="https://example.com/tomato.jpg"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Stock
+                        </label>
+
+                        <select id="productStock">
+
+                            <option value="true">
+                                Available
+                            </option>
+
+                            <option value="false">
+                                Out of Stock
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="add-product-btn"
+                    >
+
+                        + Add Product
+
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- EXISTING PRODUCTS -->
+
+            <div class="existing-products">
+
+                <div class="existing-header">
+
+                    <h3>
+                        Existing Products
+                    </h3>
+
+                    <span id="productCount">
+                        0 products
+                    </span>
+
+                </div>
+
+
+                <div
+                    id="adminProductList"
+                    class="admin-product-list"
+                ></div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         EDIT PRODUCT MODAL
+    ====================================================== -->
+
+    <div
+        class="modal-overlay"
+        id="editModal"
+    >
+
+        <div class="modal edit-modal">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h2>
+                        Edit Product
+                    </h2>
+
+                    <p>
+                        Update product details
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="modal-close"
+                    onclick="closeEditModal()"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="editProductForm">
+
+                <input
+                    type="hidden"
+                    id="editProductId"
+                >
+
+
+                <div class="form-group">
+
+                    <label>
+                        Product Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="editProductName"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Price per KG
+                    </label>
+
+                    <input
+                        type="number"
+                        id="editProductPrice"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Category
+                    </label>
+
+                    <select id="editProductCategory">
+
+                        <option value="vegetable">
+                            Vegetable
+                        </option>
+
+                        <option value="leafy">
+                            Leafy
+                        </option>
+
+                        <option value="root">
+                            Root
+                        </option>
+
+                        <option value="fruit">
+                            Fruit
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Image URL
+                    </label>
+
+                    <input
+                        type="url"
+                        id="editProductImage"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Stock
+                    </label>
+
+                    <select id="editProductStock">
+
+                        <option value="true">
+                            Available
+                        </option>
+
+                        <option value="false">
+                            Out of Stock
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="edit-actions">
+
+                    <button
+                        type="button"
+                        class="cancel-btn"
+                        onclick="closeEditModal()"
+                    >
+                        Cancel
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        class="save-btn"
+                    >
+                        Save Changes
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PRINT RECEIPT
+    ====================================================== -->
+
+    <div
+        id="printArea"
+        class="print-area"
+    >
+
+        <div class="receipt">
+
+            <div class="receipt-header">
+
+                <h1>
+                    FreshCart
+                </h1>
+
+                <p>
+                    Fresh Vegetable Shop
+                </p>
+
+                <p>
+                    Bill No:
+                    <strong id="receiptBillNumber"></strong>
+                </p>
+
+                <p id="receiptDate"></p>
+
+            </div>
+
+
+            <div class="receipt-divider"></div>
+
+
+            <div
+                id="receiptItems"
+                class="receipt-items"
+            ></div>
+
+
+            <div class="receipt-divider"></div>
+
+
+            <div class="receipt-total-row">
+
+                <span>
+                    TOTAL
+                </span>
+
+                <strong id="receiptTotal">
+                    ₹0.00
+                </strong>
+
+            </div>
+
+
+            <div class="receipt-payment">
+
+                Payment:
+                <strong id="receiptPayment">
+                    Cash
+                </strong>
+
+            </div>
+
+
+            <div class="receipt-footer">
+
+                <p>
+                    Thank you for shopping!
+                </p>
+
+                <p>
+                    Visit Again ❤️
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
